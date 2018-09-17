@@ -23,8 +23,7 @@ import Control.Monad        ( liftM5 )
 import Foreign              ( Ptr, peekByteOff, allocaBytes, pokeByteOff
                             , plusPtr )
 import Foreign.C.Types      ( CUInt(..) )
-import System.Win32.File    ( closeHandle
-                            , LPSECURITY_ATTRIBUTES )
+import System.Win32.File    ( closeHandle )
 import System.Win32.Types
 
 ##include "windows_cconv.h"
@@ -152,44 +151,3 @@ th32SnapEnumProcesses h = allocaBytes (#size PROCESSENTRY32W) $ \pe -> do
                 entry <- peekProcessEntry32 pe
                 ok' <- c_Process32Next h pe
                 readAndNext ok' pe (entry:res)
-
-data PROCESS_INFORMATION = PROCESS_INFORMATION {
-    hProcess :: HANDLE
-  , hThread :: HANDLE
-  , dwProcessId :: DWORD
-  , dwThreadId :: DWORD
-} 
-
-data STARTUPINFOA = STARTUPINFOA {
-    cb :: DWORD
-  , lpReserved :: LPSTR
-  , lpDesktop :: LPSTR
-  , lpTitle :: LPSTR
-  , dwX :: DWORD
-  , dwY :: DWORD
-  , dwXSize :: DWORD
-  , dwYSize :: DWORD
-  , dwXCountChars :: DWORD
-  , dwYCountChars :: DWORD
-  , dwFillAttributes :: DWORD
-  , dwFlag :: DWORD
-  , wShowWindow :: WORD
-  , cbReserved2 :: WORD
-  , lpReserved2 :: LPBYTE
-  , hStdInput :: HANDLE
-  , hStdOutput :: HANDLE
-  , hStdError :: HANDLE
-}
-
-foreign import WINDOWS_CCONV unsafe "windows.h CreateProcessA"
-    c_CreateProcess :: LPCSTR                   -- lpApplicationName
-                    -> LPSTR                    -- lpCommandLine
-                    -> LPSECURITY_ATTRIBUTES    -- lpProcessAttributes
-                    -> LPSECURITY_ATTRIBUTES    -- lpThreadAttributes
-                    -> BOOL                     -- bInheritHandles
-                    -> DWORD                    -- dwCreationFlags
-                    -> LPVOID                   -- lpEnvironment
-                    -> LPCSTR                   -- lpCurrentDirectory
-                    -> Ptr STARTUPINFOA         -- lpStartupInfo
-                    -> Ptr PROCESS_INFORMATION  -- lpProcessInformation
-                    -> IO BOOL
